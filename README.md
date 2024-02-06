@@ -1,31 +1,4 @@
-# < This section can be removed >
-
-Official doc for public modules [hashicorp](https://developer.hashicorp.com/terraform/registry/modules/publish)
-
-Repo structure:
-
-```
-├── README.md
-├── main.tf
-├── variables.tf
-├── outputs.tf
-├── ...
-├── modules/
-│   ├── nestedA/
-│   │   ├── README.md
-│   │   ├── variables.tf
-│   │   ├── main.tf
-│   │   ├── outputs.tf
-│   ├── nestedB/
-│   ├── .../
-├── examples/
-│   ├── exampleA/
-│   │   ├── main.tf
-│   ├── exampleB/
-│   ├── .../
-```
-
-# My Terraform Module
+# EKS cluster module
 
 This module provides an EKS cluster, configurable with managed node groups with/without custom launch template.
 
@@ -110,75 +83,77 @@ The `pre-commit` command will run:
 as described in the `.pre-commit-config.yaml` file
 
 <!-- BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
+
 ## Requirements
 
-| Name | Version |
-|------|---------|
-| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.2 |
-| <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 4.0 |
-| <a name="requirement_kubernetes"></a> [kubernetes](#requirement\_kubernetes) | >= 2.0 |
-| <a name="requirement_tls"></a> [tls](#requirement\_tls) | >= 4.0 |
+| Name                                                                        | Version |
+| --------------------------------------------------------------------------- | ------- |
+| <a name="requirement_terraform"></a> [terraform](#requirement_terraform)    | >= 1.2  |
+| <a name="requirement_aws"></a> [aws](#requirement_aws)                      | >= 4.0  |
+| <a name="requirement_kubernetes"></a> [kubernetes](#requirement_kubernetes) | >= 2.0  |
+| <a name="requirement_tls"></a> [tls](#requirement_tls)                      | >= 4.0  |
 
 ## Providers
 
-| Name | Version |
-|------|---------|
-| <a name="provider_aws"></a> [aws](#provider\_aws) | >= 4.0 |
-| <a name="provider_kubernetes"></a> [kubernetes](#provider\_kubernetes) | >= 2.0 |
-| <a name="provider_tls"></a> [tls](#provider\_tls) | >= 4.0 |
+| Name                                                                  | Version |
+| --------------------------------------------------------------------- | ------- |
+| <a name="provider_aws"></a> [aws](#provider_aws)                      | >= 4.0  |
+| <a name="provider_kubernetes"></a> [kubernetes](#provider_kubernetes) | >= 2.0  |
+| <a name="provider_tls"></a> [tls](#provider_tls)                      | >= 4.0  |
 
 ## Modules
 
-| Name | Source | Version |
-|------|--------|---------|
-| <a name="module_node_groups"></a> [node\_groups](#module\_node\_groups) | ./modules/node_groups | n/a |
+| Name                                                                 | Source                | Version |
+| -------------------------------------------------------------------- | --------------------- | ------- |
+| <a name="module_node_groups"></a> [node_groups](#module_node_groups) | ./modules/node_groups | n/a     |
 
 ## Resources
 
-| Name | Type |
-|------|------|
-| [aws_cloudwatch_log_group.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudwatch_log_group) | resource |
-| [aws_eks_addon.eks](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/eks_addon) | resource |
-| [aws_eks_cluster.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/eks_cluster) | resource |
-| [aws_iam_openid_connect_provider.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_openid_connect_provider) | resource |
-| [aws_iam_role.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role) | resource |
-| [kubernetes_config_map_v1_data.aws_auth](https://registry.terraform.io/providers/hashicorp/kubernetes/latest/docs/resources/config_map_v1_data) | resource |
-| [aws_eks_addon_version.latest](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/eks_addon_version) | data source |
-| [tls_certificate.this](https://registry.terraform.io/providers/hashicorp/tls/latest/docs/data-sources/certificate) | data source |
+| Name                                                                                                                                            | Type        |
+| ----------------------------------------------------------------------------------------------------------------------------------------------- | ----------- |
+| [aws_cloudwatch_log_group.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudwatch_log_group)               | resource    |
+| [aws_eks_addon.eks](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/eks_addon)                                      | resource    |
+| [aws_eks_cluster.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/eks_cluster)                                 | resource    |
+| [aws_iam_openid_connect_provider.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_openid_connect_provider) | resource    |
+| [aws_iam_role.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role)                                       | resource    |
+| [kubernetes_config_map_v1_data.aws_auth](https://registry.terraform.io/providers/hashicorp/kubernetes/latest/docs/resources/config_map_v1_data) | resource    |
+| [aws_eks_addon_version.latest](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/eks_addon_version)                | data source |
+| [tls_certificate.this](https://registry.terraform.io/providers/hashicorp/tls/latest/docs/data-sources/certificate)                              | data source |
 
 ## Inputs
 
-| Name | Description | Type | Default | Required |
-|------|-------------|------|---------|:--------:|
-| <a name="input_addons"></a> [addons](#input\_addons) | Map of objects 'addon\_name => object' of the EKS addons to deploy. By default 'vpc-cni', 'coredns', 'kube-proxy' latest version are installed. | <pre>map(object({<br>    version                     = optional(string)<br>    resolve_conflicts_on_create = optional(string, "OVERWRITE")<br>    configuration_values        = optional(any, {})<br>  }))</pre> | `{}` | no |
-| <a name="input_admin_roles"></a> [admin\_roles](#input\_admin\_roles) | Map of 'username => ARN' of the IAM roles who will be granted admin permissions. (e.g. admin\_sso) | `map(string)` | `{}` | no |
-| <a name="input_admin_users"></a> [admin\_users](#input\_admin\_users) | Map of 'username => ARN' of the IAM users who will be granted admin permissions. (e.g. cicd) | `map(string)` | `{}` | no |
-| <a name="input_cluster_additional_iam_policies"></a> [cluster\_additional\_iam\_policies](#input\_cluster\_additional\_iam\_policies) | Additional IAM policies to be assigned to the cluster IAM role | `list(string)` | `[]` | no |
-| <a name="input_cluster_log_types"></a> [cluster\_log\_types](#input\_cluster\_log\_types) | Types of cluster logging to enable | `set(string)` | <pre>[<br>  "api",<br>  "authenticator",<br>  "controllerManager",<br>  "scheduler"<br>]</pre> | no |
-| <a name="input_cluster_name"></a> [cluster\_name](#input\_cluster\_name) | Name of the cluster | `string` | n/a | yes |
-| <a name="input_cluster_version"></a> [cluster\_version](#input\_cluster\_version) | Kubernetes version of the cluster | `string` | n/a | yes |
-| <a name="input_node_extra_iam_policies"></a> [node\_extra\_iam\_policies](#input\_node\_extra\_iam\_policies) | List of policy ARNs to assign to the all the nodes IAM role | `list(string)` | `[]` | no |
-| <a name="input_node_groups"></a> [node\_groups](#input\_node\_groups) | Node group map for all the different Managed Node Groups that we need to manage. | <pre>map(object({<br>    k8s_version     = optional(string)<br>    min_size        = optional(number, 1)<br>    desired_size    = optional(number, 1)<br>    max_size        = optional(number, 10)<br>    max_unavailable = optional(number, 1)<br>    instance_types  = optional(list(string), ["t3.large"])<br>    ami_type        = optional(string, "AL2_x86_64")<br>    capacity_type   = optional(string, "ON_DEMAND")<br>    disk_size       = optional(number, 50)<br>    subnet_ids      = optional(list(string), [])<br>    labels          = optional(map(string), {})<br>    tags            = optional(map(string), {})<br><br>    self_managed = optional(bool, false)<br>    self_managed_configuration = optional(object({<br>      extra_bootstrap_flags     = optional(string, "") # Extra flags to pass to the bootstrap.sh userdata script<br>      spot_instances_percentage = optional(number, 0)<br>      warm_instances            = optional(number, 0)<br>    }), {})<br>  }))</pre> | n/a | yes |
-| <a name="input_subnet_ids"></a> [subnet\_ids](#input\_subnet\_ids) | Subnet IDs to associate to the cluster | `list(string)` | n/a | yes |
+| Name                                                                                                                           | Description                                                                                                                                    | Type                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  | Default                                                                                    | Required |
+| ------------------------------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------ | :------: |
+| <a name="input_addons"></a> [addons](#input_addons)                                                                            | Map of objects 'addon_name => object' of the EKS addons to deploy. By default 'vpc-cni', 'coredns', 'kube-proxy' latest version are installed. | <pre>map(object({<br> version = optional(string)<br> resolve_conflicts_on_create = optional(string, "OVERWRITE")<br> configuration_values = optional(any, {})<br> }))</pre>                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           | `{}`                                                                                       |    no    |
+| <a name="input_admin_roles"></a> [admin_roles](#input_admin_roles)                                                             | Map of 'username => ARN' of the IAM roles who will be granted admin permissions. (e.g. admin_sso)                                              | `map(string)`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         | `{}`                                                                                       |    no    |
+| <a name="input_admin_users"></a> [admin_users](#input_admin_users)                                                             | Map of 'username => ARN' of the IAM users who will be granted admin permissions. (e.g. cicd)                                                   | `map(string)`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         | `{}`                                                                                       |    no    |
+| <a name="input_cluster_additional_iam_policies"></a> [cluster_additional_iam_policies](#input_cluster_additional_iam_policies) | Additional IAM policies to be assigned to the cluster IAM role                                                                                 | `list(string)`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        | `[]`                                                                                       |    no    |
+| <a name="input_cluster_log_types"></a> [cluster_log_types](#input_cluster_log_types)                                           | Types of cluster logging to enable                                                                                                             | `set(string)`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         | <pre>[<br> "api",<br> "authenticator",<br> "controllerManager",<br> "scheduler"<br>]</pre> |    no    |
+| <a name="input_cluster_name"></a> [cluster_name](#input_cluster_name)                                                          | Name of the cluster                                                                                                                            | `string`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              | n/a                                                                                        |   yes    |
+| <a name="input_cluster_version"></a> [cluster_version](#input_cluster_version)                                                 | Kubernetes version of the cluster                                                                                                              | `string`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              | n/a                                                                                        |   yes    |
+| <a name="input_node_extra_iam_policies"></a> [node_extra_iam_policies](#input_node_extra_iam_policies)                         | List of policy ARNs to assign to the all the nodes IAM role                                                                                    | `list(string)`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        | `[]`                                                                                       |    no    |
+| <a name="input_node_groups"></a> [node_groups](#input_node_groups)                                                             | Node group map for all the different Managed Node Groups that we need to manage.                                                               | <pre>map(object({<br> k8s_version = optional(string)<br> min_size = optional(number, 1)<br> desired_size = optional(number, 1)<br> max_size = optional(number, 10)<br> max_unavailable = optional(number, 1)<br> instance_types = optional(list(string), ["t3.large"])<br> ami_type = optional(string, "AL2_x86_64")<br> capacity_type = optional(string, "ON_DEMAND")<br> disk_size = optional(number, 50)<br> subnet_ids = optional(list(string), [])<br> labels = optional(map(string), {})<br> tags = optional(map(string), {})<br><br> self_managed = optional(bool, false)<br> self_managed_configuration = optional(object({<br> extra_bootstrap_flags = optional(string, "") # Extra flags to pass to the bootstrap.sh userdata script<br> spot_instances_percentage = optional(number, 0)<br> warm_instances = optional(number, 0)<br> }), {})<br> }))</pre> | n/a                                                                                        |   yes    |
+| <a name="input_subnet_ids"></a> [subnet_ids](#input_subnet_ids)                                                                | Subnet IDs to associate to the cluster                                                                                                         | `list(string)`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        | n/a                                                                                        |   yes    |
 
 ## Outputs
 
-| Name | Description |
-|------|-------------|
-| <a name="output_autoscaling_group_names"></a> [autoscaling\_group\_names](#output\_autoscaling\_group\_names) | The autoscaling group names |
-| <a name="output_cluster_arn"></a> [cluster\_arn](#output\_cluster\_arn) | The cluster arn |
-| <a name="output_cluster_certificate_authority_data"></a> [cluster\_certificate\_authority\_data](#output\_cluster\_certificate\_authority\_data) | Base64 encoded certificate data required to communicate with the cluster |
-| <a name="output_cluster_endpoint"></a> [cluster\_endpoint](#output\_cluster\_endpoint) | The cluster endpoint |
-| <a name="output_cluster_iam_role_arn"></a> [cluster\_iam\_role\_arn](#output\_cluster\_iam\_role\_arn) | The cluster iam role arn |
-| <a name="output_cluster_id"></a> [cluster\_id](#output\_cluster\_id) | The cluster id |
-| <a name="output_cluster_name"></a> [cluster\_name](#output\_cluster\_name) | The cluster name |
-| <a name="output_cluster_oidc_issuer_url"></a> [cluster\_oidc\_issuer\_url](#output\_cluster\_oidc\_issuer\_url) | The URL on the EKS cluster for the OpenID Connect identity provider |
-| <a name="output_cluster_oidc_provider"></a> [cluster\_oidc\_provider](#output\_cluster\_oidc\_provider) | The OpenID Connect identity provider (issuer URL without leading `https://`) |
-| <a name="output_cluster_oidc_provider_arn"></a> [cluster\_oidc\_provider\_arn](#output\_cluster\_oidc\_provider\_arn) | The ARN of the OIDC Provider if `enable_irsa = true` |
-| <a name="output_cluster_tls_certificate_sha1_fingerprint"></a> [cluster\_tls\_certificate\_sha1\_fingerprint](#output\_cluster\_tls\_certificate\_sha1\_fingerprint) | The SHA1 fingerprint of the public key of the cluster's certificate |
-| <a name="output_cluster_version"></a> [cluster\_version](#output\_cluster\_version) | The cluster version |
-| <a name="output_node_group_role_arns"></a> [node\_group\_role\_arns](#output\_node\_group\_role\_arns) | The node group role arns |
-| <a name="output_node_groups"></a> [node\_groups](#output\_node\_groups) | The node groups |
+| Name                                                                                                                                                        | Description                                                                  |
+| ----------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------- |
+| <a name="output_autoscaling_group_names"></a> [autoscaling_group_names](#output_autoscaling_group_names)                                                    | The autoscaling group names                                                  |
+| <a name="output_cluster_arn"></a> [cluster_arn](#output_cluster_arn)                                                                                        | The cluster arn                                                              |
+| <a name="output_cluster_certificate_authority_data"></a> [cluster_certificate_authority_data](#output_cluster_certificate_authority_data)                   | Base64 encoded certificate data required to communicate with the cluster     |
+| <a name="output_cluster_endpoint"></a> [cluster_endpoint](#output_cluster_endpoint)                                                                         | The cluster endpoint                                                         |
+| <a name="output_cluster_iam_role_arn"></a> [cluster_iam_role_arn](#output_cluster_iam_role_arn)                                                             | The cluster iam role arn                                                     |
+| <a name="output_cluster_id"></a> [cluster_id](#output_cluster_id)                                                                                           | The cluster id                                                               |
+| <a name="output_cluster_name"></a> [cluster_name](#output_cluster_name)                                                                                     | The cluster name                                                             |
+| <a name="output_cluster_oidc_issuer_url"></a> [cluster_oidc_issuer_url](#output_cluster_oidc_issuer_url)                                                    | The URL on the EKS cluster for the OpenID Connect identity provider          |
+| <a name="output_cluster_oidc_provider"></a> [cluster_oidc_provider](#output_cluster_oidc_provider)                                                          | The OpenID Connect identity provider (issuer URL without leading `https://`) |
+| <a name="output_cluster_oidc_provider_arn"></a> [cluster_oidc_provider_arn](#output_cluster_oidc_provider_arn)                                              | The ARN of the OIDC Provider if `enable_irsa = true`                         |
+| <a name="output_cluster_tls_certificate_sha1_fingerprint"></a> [cluster_tls_certificate_sha1_fingerprint](#output_cluster_tls_certificate_sha1_fingerprint) | The SHA1 fingerprint of the public key of the cluster's certificate          |
+| <a name="output_cluster_version"></a> [cluster_version](#output_cluster_version)                                                                            | The cluster version                                                          |
+| <a name="output_node_group_role_arns"></a> [node_group_role_arns](#output_node_group_role_arns)                                                             | The node group role arns                                                     |
+| <a name="output_node_groups"></a> [node_groups](#output_node_groups)                                                                                        | The node groups                                                              |
+
 <!-- END OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
 
 ## Authors
