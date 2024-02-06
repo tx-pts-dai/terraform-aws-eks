@@ -89,9 +89,9 @@ variable "self_managed" {
 variable "self_managed_configuration" {
   description = "Only used if var.self_managed is true. Pass parameters specific to self-managed node groups"
   type = object({
-    extra_bootstrap_flags     = optional(string) # Extra flags to pass to the bootstrap.sh userdata script
-    spot_instances_percentage = optional(number)
-    warm_instances            = optional(number)
+    extra_bootstrap_flags     = optional(string, "") # Extra flags to pass to the bootstrap.sh userdata script
+    spot_instances_percentage = optional(number, 0)
+    warm_instances            = optional(number, 0)
     # needed for custom user-data script
     cluster_certificate_authority_data = string
     cluster_security_group_id          = string
