@@ -67,7 +67,7 @@ resource "aws_iam_role" "this" {
 
 module "node_groups" {
   for_each = var.node_groups
-  source   = "./node_groups"
+  source   = "./modules/node_groups"
 
   cluster_name = aws_eks_cluster.this.name
   subnet_ids   = length(each.value.subnet_ids) != 0 ? each.value.subnet_ids : var.subnet_ids

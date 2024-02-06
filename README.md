@@ -131,7 +131,7 @@ as described in the `.pre-commit-config.yaml` file
 
 | Name | Source | Version |
 |------|--------|---------|
-| <a name="module_node_groups"></a> [node\_groups](#module\_node\_groups) | ./node_groups | n/a |
+| <a name="module_node_groups"></a> [node\_groups](#module\_node\_groups) | ./modules/node_groups | n/a |
 
 ## Resources
 
