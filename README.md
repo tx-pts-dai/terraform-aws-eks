@@ -8,10 +8,10 @@ Create the following new module block with the desired parameters in one of your
 
 ```tf
 module "eks" {
-  source = "github.com/DND-IT/infra-terraform-module.git//eks?ref=eks-v1.0.0"
+  source = "github.com/tx-pts-dai/terraform-aws-eks.git?ref=eks-v1.0.0"
 
   cluster_name    = "sample-eks-cluster"
-  cluster_version = "1.23"
+  cluster_version = "1.25"
 
   subnet_ids  = module.vpc.private_subnets
   node_groups = {
