@@ -1,8 +1,20 @@
-# EKS cluster module
+# EKS Module
 
 This module provides an EKS cluster, configurable with managed node groups with/without custom launch template.
 
-## Usage
+## Core concepts
+
+This module covers the following use cases:
+
+* Create quickly a working EKS cluster
+* Cluster with long-term maintainability in mind by reducing dependencies to official providers only
+* Cluster with default configuration
+  * Addons (vpc-cni, kube-proxy, coredns)
+  * Support for managed node groups with custom launch templates
+  * OpenIDConnect provider to support [IAM Roles for Service Accounts](https://docs.aws.amazon.com/eks/latest/userguide/iam-roles-for-service-accounts.html)
+  * [Default security groups](https://docs.aws.amazon.com/eks/latest/userguide/sec-group-reqs.html) and extensible IAM permissions
+
+## How do you use this module?
 
 Create the following new module block with the desired parameters in one of your `.tf` file
 
@@ -27,7 +39,7 @@ module "eks" {
 }
 
 output "eks_cluster_name" {
-  value = module.eks.cluster_name
+  value = "${module.eks.cluster_name}"
 }
 ```
 
@@ -53,17 +65,7 @@ module "eks_blueprints_kubernetes_addons" {
 
 Further workloads supported by this: <https://aws-ia.github.io/terraform-aws-eks-blueprints/add-ons/>
 
-## Core concepts
-
-This module covers the following use cases:
-
-- Create quickly a working EKS cluster
-- Cluster with long-term maintainability in mind by reducing dependencies to official providers only
-- Cluster with default configuration
-  - Addons (vpc-cni, kube-proxy, coredns)
-  - Support for managed node groups with custom launch templates
-  - OpenIDConnect provider to support [IAM Roles for Service Accounts](https://docs.aws.amazon.com/eks/latest/userguide/iam-roles-for-service-accounts.html)
-  - [Default security groups](https://docs.aws.amazon.com/eks/latest/userguide/sec-group-reqs.html) and extensible IAM permissions
+## Contributing
 
 ### Pre-Commit
 
@@ -73,38 +75,38 @@ Before submitting a PR be sure to have used the pre-commit hooks or run: `pre-co
 
 The `pre-commit` command will run:
 
-- Terraform fmt
-- Terraform validate
-- Terraform docs
-- Terraform validate with tflint
-- check for merge conflicts
-- fix end of files
+* Terraform fmt
+* Terraform validate
+* Terraform docs
+* Terraform validate with tflint
+* check for merge conflicts
+* fix end of files
 
 as described in the `.pre-commit-config.yaml` file
 
-<!-- BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
+<!-- BEGIN_TF_DOCS -->
 ## Requirements
 
 | Name | Version |
 |------|---------|
-| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.3 |
-| <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 4.0 |
-| <a name="requirement_kubernetes"></a> [kubernetes](#requirement\_kubernetes) | >= 2.0 |
-| <a name="requirement_tls"></a> [tls](#requirement\_tls) | >= 4.0 |
+| terraform | >= 1.2 |
+| aws | >= 4.0 |
+| kubernetes | >= 2.0 |
+| tls | >= 4.0 |
 
 ## Providers
 
 | Name | Version |
 |------|---------|
-| <a name="provider_aws"></a> [aws](#provider\_aws) | >= 4.0 |
-| <a name="provider_kubernetes"></a> [kubernetes](#provider\_kubernetes) | >= 2.0 |
-| <a name="provider_tls"></a> [tls](#provider\_tls) | >= 4.0 |
+| aws | >= 4.0 |
+| kubernetes | >= 2.0 |
+| tls | >= 4.0 |
 
 ## Modules
 
 | Name | Source | Version |
 |------|--------|---------|
-| <a name="module_node_groups"></a> [node\_groups](#module\_node\_groups) | ./modules/node_groups | n/a |
+| node\_groups | ./modules/node_groups | n/a |
 
 ## Resources
 
@@ -123,41 +125,34 @@ as described in the `.pre-commit-config.yaml` file
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
-| <a name="input_addons"></a> [addons](#input\_addons) | Map of objects 'addon\_name => object' of the EKS addons to deploy. By default 'vpc-cni', 'coredns', 'kube-proxy' latest version are installed. | <pre>map(object({<br>    version                     = optional(string)<br>    resolve_conflicts_on_create = optional(string, "OVERWRITE")<br>    configuration_values        = optional(any, {})<br>  }))</pre> | `{}` | no |
-| <a name="input_admin_roles"></a> [admin\_roles](#input\_admin\_roles) | Map of 'username => ARN' of the IAM roles who will be granted admin permissions. (e.g. admin\_sso) | `map(string)` | `{}` | no |
-| <a name="input_admin_users"></a> [admin\_users](#input\_admin\_users) | Map of 'username => ARN' of the IAM users who will be granted admin permissions. (e.g. cicd) | `map(string)` | `{}` | no |
-| <a name="input_cluster_additional_iam_policies"></a> [cluster\_additional\_iam\_policies](#input\_cluster\_additional\_iam\_policies) | Additional IAM policies to be assigned to the cluster IAM role | `list(string)` | `[]` | no |
-| <a name="input_cluster_log_types"></a> [cluster\_log\_types](#input\_cluster\_log\_types) | Types of cluster logging to enable | `set(string)` | <pre>[<br>  "api",<br>  "authenticator",<br>  "controllerManager",<br>  "scheduler"<br>]</pre> | no |
-| <a name="input_cluster_name"></a> [cluster\_name](#input\_cluster\_name) | Name of the cluster | `string` | n/a | yes |
-| <a name="input_cluster_version"></a> [cluster\_version](#input\_cluster\_version) | Kubernetes version of the cluster | `string` | n/a | yes |
-| <a name="input_node_extra_iam_policies"></a> [node\_extra\_iam\_policies](#input\_node\_extra\_iam\_policies) | List of policy ARNs to assign to the all the nodes IAM role | `list(string)` | `[]` | no |
-| <a name="input_node_groups"></a> [node\_groups](#input\_node\_groups) | Node group map for all the different Managed Node Groups that we need to manage. | <pre>map(object({<br>    k8s_version     = optional(string)<br>    min_size        = optional(number, 1)<br>    desired_size    = optional(number, 1)<br>    max_size        = optional(number, 10)<br>    max_unavailable = optional(number, 1)<br>    instance_types  = optional(list(string), ["t3.large"])<br>    ami_type        = optional(string, "AL2_x86_64")<br>    capacity_type   = optional(string, "ON_DEMAND")<br>    disk_size       = optional(number, 50)<br>    subnet_ids      = optional(list(string), [])<br>    labels          = optional(map(string), {})<br>    tags            = optional(map(string), {})<br><br>    self_managed = optional(bool, false)<br>    self_managed_configuration = optional(object({<br>      extra_bootstrap_flags     = optional(string, "") # Extra flags to pass to the bootstrap.sh userdata script<br>      spot_instances_percentage = optional(number, 0)<br>      warm_instances            = optional(number, 0)<br>    }), {})<br>  }))</pre> | n/a | yes |
-| <a name="input_subnet_ids"></a> [subnet\_ids](#input\_subnet\_ids) | Subnet IDs to associate to the cluster | `list(string)` | n/a | yes |
+| addons | Map of objects 'addon\_name => object' of the EKS addons to deploy. By default 'vpc-cni', 'coredns', 'kube-proxy' latest version are installed. | ```map(object({ version = optional(string) resolve_conflicts_on_create = optional(string, "OVERWRITE") configuration_values = optional(any, {}) }))``` | `{}` | no |
+| admin\_roles | Map of 'username => ARN' of the IAM roles who will be granted admin permissions. (e.g. admin\_sso) | `map(string)` | `{}` | no |
+| admin\_users | Map of 'username => ARN' of the IAM users who will be granted admin permissions. (e.g. cicd) | `map(string)` | `{}` | no |
+| cluster\_additional\_iam\_policies | Additional IAM policies to be assigned to the cluster IAM role | `list(string)` | `[]` | no |
+| cluster\_log\_types | Types of cluster logging to enable | `set(string)` | ```[ "api", "authenticator", "controllerManager", "scheduler" ]``` | no |
+| cluster\_name | Name of the cluster | `string` | n/a | yes |
+| cluster\_version | Kubernetes version of the cluster | `string` | n/a | yes |
+| node\_bootstrap\_roles | List of 'ARNs' for the IAM roles who will be granted node bootstrap permissions. | `list(string)` | `[]` | no |
+| node\_extra\_iam\_policies | List of policy ARNs to assign to the all the nodes IAM role | `list(string)` | `[]` | no |
+| node\_groups | Node group map for all the different Managed Node Groups that we need to manage. | ```map(object({ k8s_version = optional(string) min_size = optional(number, 1) desired_size = optional(number, 1) max_size = optional(number, 10) max_unavailable = optional(number, 1) instance_types = optional(list(string), ["t3.large"]) ami_type = optional(string, "AL2_x86_64") capacity_type = optional(string, "ON_DEMAND") disk_size = optional(number, 50) subnet_ids = optional(list(string), []) labels = optional(map(string), {}) tags = optional(map(string), {}) self_managed = optional(bool, false) self_managed_configuration = optional(object({ extra_bootstrap_flags = optional(string, "") # Extra flags to pass to the bootstrap.sh userdata script spot_instances_percentage = optional(number, 0) warm_instances = optional(number, 0) }), {}) }))``` | n/a | yes |
+| subnet\_ids | Subnet IDs to associate to the cluster | `list(string)` | n/a | yes |
 
 ## Outputs
 
 | Name | Description |
 |------|-------------|
-| <a name="output_autoscaling_group_names"></a> [autoscaling\_group\_names](#output\_autoscaling\_group\_names) | The autoscaling group names |
-| <a name="output_cluster_arn"></a> [cluster\_arn](#output\_cluster\_arn) | The cluster arn |
-| <a name="output_cluster_certificate_authority_data"></a> [cluster\_certificate\_authority\_data](#output\_cluster\_certificate\_authority\_data) | Base64 encoded certificate data required to communicate with the cluster |
-| <a name="output_cluster_endpoint"></a> [cluster\_endpoint](#output\_cluster\_endpoint) | The cluster endpoint |
-| <a name="output_cluster_iam_role_arn"></a> [cluster\_iam\_role\_arn](#output\_cluster\_iam\_role\_arn) | The cluster iam role arn |
-| <a name="output_cluster_id"></a> [cluster\_id](#output\_cluster\_id) | The cluster id |
-| <a name="output_cluster_name"></a> [cluster\_name](#output\_cluster\_name) | The cluster name |
-| <a name="output_cluster_oidc_issuer_url"></a> [cluster\_oidc\_issuer\_url](#output\_cluster\_oidc\_issuer\_url) | The URL on the EKS cluster for the OpenID Connect identity provider |
-| <a name="output_cluster_oidc_provider"></a> [cluster\_oidc\_provider](#output\_cluster\_oidc\_provider) | The OpenID Connect identity provider (issuer URL without leading `https://`) |
-| <a name="output_cluster_oidc_provider_arn"></a> [cluster\_oidc\_provider\_arn](#output\_cluster\_oidc\_provider\_arn) | The ARN of the OIDC Provider if `enable_irsa = true` |
-| <a name="output_cluster_tls_certificate_sha1_fingerprint"></a> [cluster\_tls\_certificate\_sha1\_fingerprint](#output\_cluster\_tls\_certificate\_sha1\_fingerprint) | The SHA1 fingerprint of the public key of the cluster's certificate |
-| <a name="output_cluster_version"></a> [cluster\_version](#output\_cluster\_version) | The cluster version |
-| <a name="output_node_group_role_arns"></a> [node\_group\_role\_arns](#output\_node\_group\_role\_arns) | The node group role arns |
-| <a name="output_node_groups"></a> [node\_groups](#output\_node\_groups) | The node groups |
-<!-- END OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
-
-## Authors
-
-Module is maintained by [Alfredo Gottardo](https://github.com/AlfGot), [David Beauvererd](https://github.com/Davidoutz), [Davide Cammarata](https://github.com/DCamma), [Demetrio Carrara](https://github.com/sgametrio) and [Roland Bapst](https://github.com/rbapst-tamedia)
-
-## License
-
-Apache 2 Licensed. See [LICENSE](< link to license file >) for full details.
+| autoscaling\_group\_names | n/a |
+| cluster\_arn | n/a |
+| cluster\_certificate\_authority\_data | Base64 encoded certificate data required to communicate with the cluster |
+| cluster\_endpoint | n/a |
+| cluster\_iam\_role\_arn | n/a |
+| cluster\_id | n/a |
+| cluster\_name | n/a |
+| cluster\_oidc\_issuer\_url | The URL on the EKS cluster for the OpenID Connect identity provider |
+| cluster\_oidc\_provider | The OpenID Connect identity provider (issuer URL without leading `https://`) |
+| cluster\_oidc\_provider\_arn | The ARN of the OIDC Provider if `enable_irsa = true` |
+| cluster\_tls\_certificate\_sha1\_fingerprint | The SHA1 fingerprint of the public key of the cluster's certificate |
+| cluster\_version | n/a |
+| node\_group\_role\_arns | n/a |
+| node\_groups | n/a |
+<!-- END_TF_DOCS -->

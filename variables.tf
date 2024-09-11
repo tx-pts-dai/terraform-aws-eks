@@ -20,6 +20,18 @@ variable "admin_roles" {
   default     = {}
 }
 
+variable "additional_node_role_arns" {
+  description = "List of role 'ARNs' which will be granted node bootstrap permissions."
+  type        = list(string)
+  default     = []
+}
+
+variable "fargate_role_arns" {
+  description = "List of role 'ARNs' which will be granted fargate node bootstrap permissions."
+  type        = list(string)
+  default     = []
+}
+
 variable "cluster_additional_iam_policies" {
   description = "Additional IAM policies to be assigned to the cluster IAM role"
   type        = list(string)

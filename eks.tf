@@ -108,31 +108,40 @@ resource "aws_iam_openid_connect_provider" "this" {
   url             = data.tls_certificate.this.url
 }
 
-
 # AWS Authentication through aws-auth ConfigMap
 locals {
-  admin_users_yaml = join("\n", [for username, arn in var.admin_users : <<EOF
-- "groups":
-  - "system:masters"
-  "userarn": "${arn}"
-  "username": "${username}"
-EOF
-  ])
-  node_roles_yaml = join("\n", [for node in module.node_groups : <<EOF
-- "groups":
-  - "system:bootstrappers"
-  - "system:nodes"
-  "rolearn": "${node.node_iam_role_arn}"
-  "username": "system:node:{{EC2PrivateDNSName}}"
-EOF
-  ])
-  admin_roles_yaml = join("\n", [for username, arn in var.admin_roles : <<-EOT
-- "groups":
-  - "system:masters"
-  "rolearn": "${arn}"
-  "username": "${username}"
-EOT
-  ])
+  combined_roles = concat(
+    [for node in module.node_groups : {
+      groups   = ["system:bootstrappers", "system:nodes"]
+      rolearn  = node.node_iam_role_arn
+      username = "system:node:{{EC2PrivateDNSName}}"
+    }],
+    [for username, arn in var.admin_roles : {
+      groups   = ["system:masters"]
+      rolearn  = arn
+      username = username
+    }],
+    [for arn in var.additional_node_role_arns : {
+      groups   = ["system:bootstrappers", "system:nodes"]
+      rolearn  = arn
+      username = "system:node:{{EC2PrivateDNSName}}"
+    }],
+    [for arn in var.fargate_role_arns : {
+      groups   = ["system:bootstrappers", "system:nodes", "system:node-proxier"]
+      rolearn  = arn
+      username = "system:node:{{SessionName}}"
+    }],
+  )
+
+  aws_auth_configmap_data = {
+    mapRoles = yamlencode(local.combined_roles)
+    mapUsers = yamlencode([for username, arn in var.admin_users : {
+      groups   = ["system:masters"]
+      userarn  = arn
+      username = username
+    }])
+    mapAccounts = yamlencode([])
+  }
 }
 
 resource "kubernetes_config_map_v1_data" "aws_auth" {
@@ -140,11 +149,9 @@ resource "kubernetes_config_map_v1_data" "aws_auth" {
     name      = "aws-auth"
     namespace = "kube-system"
   }
-  data = {
-    "mapAccounts" = jsonencode([])
-    "mapRoles"    = join("\n", [local.node_roles_yaml, local.admin_roles_yaml])
-    "mapUsers"    = local.admin_users_yaml
-  }
+
+  data = local.aws_auth_configmap_data
+
   field_manager = "Terraform"
   force         = true
 }
